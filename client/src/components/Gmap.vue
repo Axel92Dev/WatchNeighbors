@@ -1,5 +1,5 @@
 <template>
-  <div id="map" v-if="isNavigatorAvailable"></div>
+  <div id="map" v-if="isNavigatorAvailable" ></div>
   <div id="noPosition" v-else>Cannot find position</div>
  
 </template>
@@ -15,31 +15,36 @@
 import GoogleMapsLoader from 'google-maps';
 export default {
   name: 'gmap',
-  props: ['apiKey', 'center', 'lat', 'lng'],
+  props: ['apiKey', 'lat', 'lng'],
   data() {
     return {
-      msg: 'Welcome to Your Vue.js Ap, keep waiting and it will transform!',
       map: {}
     };
   },
   mounted() {
     // `this` points to the vm instance
+    console.log('Mounted GMAP ', this.apiKey, this.lat, this.lng, this);
     GoogleMapsLoader.KEY = this.apiKey;
-    console.log(this.apiKey, this.lat, this.lng, this);
     GoogleMapsLoader.load((google) => {
       this.map = new google.maps.Map(document.getElementById('map'), {
         zoom: 7,
         center: { lat: this.lat, lng: this.lng }
-      });
+      });S
     });
   },
   computed: {
     isNavigatorAvailable: () => {
+      console.log('Hola navigator', navigator.geolocation);
       return navigator.geolocation;
     },
-    updateCenter() {
-      console.log('update center: ', this.lat, this.lng, this);
-      this.map.setCenter(this.lat, this.lng);
+  },
+  watch: {
+    lat: {
+      handler: function(latP) {
+        console.log('update center: ', latP, this);
+        this.map.setCenter({ lat: latP, lng: this.lng });
+      },
+      deep: true,
     },
   },
 };

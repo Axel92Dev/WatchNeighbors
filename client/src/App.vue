@@ -1,40 +1,56 @@
 <template>
   <div id="app">
-    <gmap :center="storedCenter" :lat="lat" :lng="lng" :api-key="gmapKey"></gmap>
+    <gmap :lat="lat" :lng="lng" :api-key="gmapKey"></gmap>
   </div>
 </template>
 
 <script>
 /* global document, navigator, alert */
+/*eslint-disable */
 import Gmap from './components/Gmap';
 import LocalStore from './LocalStore';
-
-console.log(LocalStore);
+let OGG = {lat: 7, lng: 40};
 
 export default {
   name: 'app',
   data() {
     return {
       gmapKey: 'AIzaSyDdVmOggLuEPYN-m5_k5vAMA8JmmKB1iD0',
-      storedCenter: LocalStore.storedCenter,
-      lat: LocalStore.lat,
-      lng: LocalStore.lng,
+      lat: OGG.lat,
+      lng: OGG.lng,
     };
   },
   computed: {},
   components: {
     Gmap,
   },
+  watch: {
+    lat: {
+      handler: function(latP) {
+        console.log('update center: ', latP, this);
+        this.map.setCenter({ lat: latP, lng: this.lng });
+      },
+      deep: true,
+    },
+  },
 };
 
-navigator.geolocation.watchPosition(position =>
-  LocalStore.updateStoredCenter.call(LocalStore, position),
-  (error) => {
+navigator.geolocation.watchPosition(function (position) {
+  console.log(position);
+  console.log('LocalStore previous val: ', OGG);
+  OGG.lat = position.coords.latitude;
+  OGG.lng = position.coords.longitude;
+  console.log('LocalStore now: ', OGG);
+  // Gmap.updateCenter(position.coords.latitude, position.coords.longitude);
+  },
+  function (error) {
     alert(error);
-  }, {
+  },
+  {
     enableHighAccuracy: true,
     timeout: 7000,
   });
+
 
 </script>
 
